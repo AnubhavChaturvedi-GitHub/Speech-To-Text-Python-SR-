@@ -4,11 +4,16 @@ setlocal
 set "REPO_URL=https://github.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API.git"
 set "TARGET_DIR=Speech-to-Text-with-Python-Google-Web-Speech-API"
 
+:: Define Python version for auto-install
+set "PY_VERSION=3.12.5"
+set "PY_INSTALLER=python-%PY_VERSION%-amd64.exe"
+set "PY_URL=https://www.python.org/ftp/python/%PY_VERSION%/%PY_INSTALLER%"
+
 echo ========================================================
 echo [INFO] Step 1: Checking Git...
 where git >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-  echo [WARN] Git not found. Trying to install via winget...
+  echo [WARN] Git not found. Installing Git via winget...
   winget install --id Git.Git -e --source winget
 ) else (
   git --version
@@ -23,9 +28,23 @@ if not defined PYTHON (
   where py >nul 2>nul && set "PYTHON=py -3"
 )
 
+:: If Python not found, download & install silently
 if not defined PYTHON (
-  echo [ERR ] Python not found. Opening Python downloads page...
-  start "" "https://www.python.org/downloads/"
+  echo [WARN] Python not found. Downloading %PY_VERSION% from python.org...
+  powershell -Command "Invoke-WebRequest -Uri %PY_URL% -OutFile %PY_INSTALLER%"
+  echo [INFO] Installing Python %PY_VERSION% silently...
+  %PY_INSTALLER% /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+  echo [INFO] Cleaning up installer...
+  del %PY_INSTALLER%
+  echo [INFO] Re-checking Python after installation...
+  where python >nul 2>nul && set "PYTHON=python"
+  if not defined PYTHON (
+    where py >nul 2>nul && set "PYTHON=py -3"
+  )
+)
+
+if not defined PYTHON (
+  echo [ERR ] Python installation failed. Please install manually.
   goto :END
 ) else (
   %PYTHON% --version
