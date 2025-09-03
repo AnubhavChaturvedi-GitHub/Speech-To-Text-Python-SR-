@@ -1,0 +1,6 @@
+speechrecognition
+pyaudio
+google-api-python-client
+numpy
+scipy
+matplotlib
