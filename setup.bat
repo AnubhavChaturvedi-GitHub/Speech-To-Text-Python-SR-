@@ -38,15 +38,30 @@ if exist "%TARGET_DIR%\.git" (
   echo [INFO] Repo already exists. Pulling latest changes...
   pushd "%TARGET_DIR%"
   git pull --ff-only
-  popd
 ) else (
   echo [INFO] Cloning repo into "%cd%\%TARGET_DIR%"...
   git clone "%REPO_URL%" "%TARGET_DIR%"
+  if errorlevel 1 (
+    echo [ERR ] Clone failed.
+    goto :END
+  )
+  pushd "%TARGET_DIR%"
+)
+
+echo ========================================================
+echo [INFO] Verifying main.py presence...
+if exist main.py (
+  echo [ OK ] main.py found.
+) else (
+  echo [ERR ] main.py not found in "%cd%".
+  echo [INFO] Contents of current directory:
+  dir /b
+  popd
+  goto :END
 )
 
 echo ========================================================
 echo [INFO] Step 4: Setting up virtual environment...
-pushd "%TARGET_DIR%"
 if not exist venv (
   echo [INFO] Creating venv...
   %PYTHON% -m venv venv
@@ -62,19 +77,15 @@ if not defined REQ_FILE if exist requirement.txt set "REQ_FILE=requirement.txt"
 
 if defined REQ_FILE (
   echo [INFO] Found %REQ_FILE%
-  python -m pip install --upgrade pip setuptools wheel
-  python -m pip install -r %REQ_FILE%
+  %PYTHON% -m pip install --upgrade pip setuptools wheel
+  %PYTHON% -m pip install -r %REQ_FILE%
 ) else (
   echo [WARN] No requirements.txt found, skipping dependency install.
 )
 
 echo ========================================================
 echo [INFO] Step 6: Running main.py...
-if exist main.py (
-  python main.py
-) else (
-  echo [ERR ] main.py not found in repo.
-)
+%PYTHON% main.py
 
 popd
 
