@@ -3,7 +3,7 @@
 A simple **Speech-to-Text (STT)** system in Python using the [SpeechRecognition](https://pypi.org/project/SpeechRecognition/) library and Google’s Web Speech API.
 It listens to your microphone, sends the audio to Google’s cloud recognizer, and prints the transcribed text.
 
-<img src="https://github.com/AnubhavChaturvedi-GitHub/Speech-To-Text-Python-SR-/blob/main/Asset/svgviewer-output%20(1).svg" width="800" />
+<img src="https://github.com/AnubhavChaturvedi-GitHub/Speech-To-Text-Python-SR-/blob/main/Asset/svgviewer-output%20(1).svg" width="1000" />
 
 ---
 
