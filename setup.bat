@@ -1,112 +1,85 @@
 @echo off
-setlocal ENABLEDELAYEDEXPANSION
-
-REM setup_speech_to_text.bat
-REM Repo: https://github.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API.git
+setlocal
 
 set "REPO_URL=https://github.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API.git"
 set "TARGET_DIR=Speech-to-Text-with-Python-Google-Web-Speech-API"
 
-echo [INFO] Checking for Git...
+echo ========================================================
+echo [INFO] Step 1: Checking Git...
 where git >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-  echo [WARN] Git is not installed.
-  REM Try winget if available; otherwise open Git website
-  where winget >nul 2>nul
-  if %ERRORLEVEL% equ 0 (
-    echo [INFO] Attempting to install Git via winget (you may be prompted)...
-    winget install --id Git.Git -e --source winget
-    if %ERRORLEVEL% neq 0 (
-      echo [WARN] winget install failed or was canceled.
-      goto :GIT_WEBSITE
-    )
-  ) else (
-    :GIT_WEBSITE
-    echo [INFO] Opening Git downloads page. Please install Git, then re-run this script.
-    start "" "https://git-scm.com/downloads"
-    goto :END
-  )
+  echo [WARN] Git not found. Trying to install via winget...
+  winget install --id Git.Git -e --source winget
 ) else (
-  echo [ OK ] git is already initialized and installed.
+  git --version
+  echo [ OK ] Git is installed.
 )
 
-REM Clone or update
+echo ========================================================
+echo [INFO] Step 2: Checking Python...
+set "PYTHON="
+where python >nul 2>nul && set "PYTHON=python"
+if not defined PYTHON (
+  where py >nul 2>nul && set "PYTHON=py -3"
+)
+
+if not defined PYTHON (
+  echo [ERR ] Python not found. Opening Python downloads page...
+  start "" "https://www.python.org/downloads/"
+  goto :END
+) else (
+  %PYTHON% --version
+  echo [ OK ] Python is installed.
+)
+
+echo ========================================================
+echo [INFO] Step 3: Cloning or updating repository...
 if exist "%TARGET_DIR%\.git" (
-  echo [INFO] Repo directory exists. Pulling latest changes...
+  echo [INFO] Repo already exists. Pulling latest changes...
   pushd "%TARGET_DIR%"
   git pull --ff-only
-  if %ERRORLEVEL% neq 0 (
-    echo [ERR ] git pull failed.
-    popd
-    goto :END
-  )
   popd
 ) else (
-  echo [INFO] Cloning repository...
+  echo [INFO] Cloning repo into "%cd%\%TARGET_DIR%"...
   git clone "%REPO_URL%" "%TARGET_DIR%"
-  if %ERRORLEVEL% neq 0 (
-    echo [ERR ] git clone failed.
-    goto :END
-  )
 )
 
-REM Check Python
-echo [INFO] Checking for Python...
-where python >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-  where py >nul 2>nul
-  if %ERRORLEVEL% neq 0 (
-    echo [WARN] Python is not installed.
-    echo        Opening the official Python downloads page. Please install Python 3 (check "Add Python to PATH") and re-run this script.
-    start "" "https://www.python.org/downloads/"
-    goto :END
-  ) else (
-    set "PY=py -3"
-  )
-) else (
-  set "PY=python"
-)
-
-REM Install requirements if present
+echo ========================================================
+echo [INFO] Step 4: Setting up virtual environment...
 pushd "%TARGET_DIR%"
-set "REQ_FILE="
-for %%F in (requirements.txt requirement.txt) do (
-  if exist "%%F" (
-    set "REQ_FILE=%%F"
-    goto :HAVE_REQ
-  )
+if not exist venv (
+  echo [INFO] Creating venv...
+  %PYTHON% -m venv venv
 )
-REM Also search one level down if not found at root
-for /r "." %%F in (requirements.txt requirement.txt) do (
-  if not defined REQ_FILE (
-    set "REQ_FILE=%%F"
-  )
+call venv\Scripts\activate.bat
+echo [ OK ] Virtual environment activated.
+
+echo ========================================================
+echo [INFO] Step 5: Installing Python dependencies...
+set "REQ_FILE="
+if exist requirements.txt set "REQ_FILE=requirements.txt"
+if not defined REQ_FILE if exist requirement.txt set "REQ_FILE=requirement.txt"
+
+if defined REQ_FILE (
+  echo [INFO] Found %REQ_FILE%
+  python -m pip install --upgrade pip setuptools wheel
+  python -m pip install -r %REQ_FILE%
+) else (
+  echo [WARN] No requirements.txt found, skipping dependency install.
 )
 
-:HAVE_REQ
-if defined REQ_FILE (
-  echo [INFO] Found requirements file: %REQ_FILE%
-  REM Ensure pip is available and upgrade base tooling
-  %PY% -m pip --version >nul 2>nul
-  if %ERRORLEVEL% neq 0 (
-    echo [WARN] pip not found. Trying to bootstrap with ensurepip...
-    %PY% -m ensurepip --upgrade
-  )
-  echo [INFO] Upgrading pip/setuptools/wheel...
-  %PY% -m pip install --upgrade pip setuptools wheel
-  echo [INFO] Installing Python requirements...
-  %PY% -m pip install -r "%REQ_FILE%"
-  if %ERRORLEVEL% neq 0 (
-    echo [ERR ] Failed installing requirements.
-    popd
-    goto :END
-  )
+echo ========================================================
+echo [INFO] Step 6: Running main.py...
+if exist main.py (
+  python main.py
 ) else (
-  echo [WARN] No requirements.txt/requirement.txt found. Skipping Python dependency install.
+  echo [ERR ] main.py not found in repo.
 )
 
 popd
 
-echo [ OK ] Setup complete.
+echo ========================================================
+echo [DONE] Setup and run finished.
+pause
 :END
 endlocal
