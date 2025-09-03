@@ -1,10 +1,4 @@
 # 🎙️ Speech-to-Text (Google Web Speech API) 
-<a href="https://raw.githubusercontent.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API/main/setup.bat" download="SpeechToTextSetup.bat">
-  <img src="https://img.shields.io/badge/Download-.bat%20file-blue?style=for-the-badge" alt="Download .bat file">
-</a>
-
-
-
 
 A simple **Speech-to-Text (STT)** system in Python using the [SpeechRecognition](https://pypi.org/project/SpeechRecognition/) library and Google’s Web Speech API.
 It listens to your microphone, sends the audio to Google’s cloud recognizer, and prints the transcribed text.
