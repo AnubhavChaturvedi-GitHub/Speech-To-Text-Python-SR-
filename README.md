@@ -1,5 +1,5 @@
 # 🎙️ Speech-to-Text (Google Web Speech API) 
-<a href="https://github.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API/raw/main/run_speech_to_text.bat?raw=true" download>
+<a href="https://github.com/AnubhavChaturvedi-GitHub/Speech-to-Text-with-Python-Google-Web-Speech-API/raw/main/setup.bat?raw=true" download>
   <img src="https://img.shields.io/badge/Download-.bat%20file-blue?style=for-the-badge" alt="Download .bat file">
 </a>
 
