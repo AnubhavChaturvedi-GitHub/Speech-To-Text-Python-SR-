@@ -1,4 +1,4 @@
-# 🎙️ Speech-to-Text with Python (Google Web Speech API)
+# 🎙️ Speech-to-Text (Google Web Speech API)
 
 A simple **Speech-to-Text (STT)** system in Python using the [SpeechRecognition](https://pypi.org/project/SpeechRecognition/) library and Google’s Web Speech API.
 It listens to your microphone, sends the audio to Google’s cloud recognizer, and prints the transcribed text.
